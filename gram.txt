@@ -1,0 +1,78 @@
+expr ::=
+    | constant                                  constants
+    | "(" expr ")"                              grouping
+    | expr { "," expr }+                        tuples
+    | expr "::" expr                            list cons
+    | "[" expr { ";" expr } "]"                 lists
+    | expr { expr }+                            function application
+    | expr infix-op expr                        infix ops
+    | "if" expr "then" expr "else" expr         if-else statements
+    | "match" expr "with" pattern-matching      match statements
+    | "fun" pattern "->" expr                   lambdas
+    | "let" [ "rec" ] let-binding "in" expr     let bindings
+
+infix-op ::= "+" | "*" | "=" | "<" | "||" | "&&"
+
+constant ::= integer-literal | "false" | "true" | "()" | "[]"
+
+pattern-matching ::= pattern "->" expr { "|" pattern "->" expr }
+
+pattern ::=
+    | value-name
+    | "_"
+    | constant
+    | "(" pattern ")"
+    | pattern "|" pattern
+    | pattern { "," pattern }+
+    | "[" pattern { ";" pattern } "]"
+    | pattern "::" pattern
+
+let-binding ::= pattern "=" expr | value-name { pattern } "=" expr
+
+---
+
+expr ::=
+    | constant                                  constants
+    | "(" expr ")"                              grouping
+    | expr tuple-rep                            tuples
+    | expr "::" expr                            list cons
+    | "[" expr list-rep "]"                     lists
+    | expr args-rep                             function application; note: potentially nicer if left recursive
+    | expr infix-op expr                        infix ops
+    | "if" expr "then" expr "else" expr         if-else statements
+    | "match" expr "with" pattern-matching      match statements
+    | "fun" pattern "->" expr                   lambdas
+    | "let" rec-opt let-binding "in" expr       let bindings
+
+expr-tuple-rep ::= "," expr | "," expr tuple-rep
+
+expr-list-rep ::= "" | ";" expr list-rep
+
+arg-rep ::= expr | expr arg-rep
+
+rec-opt ::= "" | "rec"
+
+infix-op ::= "+" | "*" | "=" | "<" | "||" | "&&"
+
+constant ::= integer-literal | "false" | "true" | "()" | "[]"
+
+pattern-matching ::= pattern "->" expr branch-rep
+
+branch-rep ::= "" | "|" pattern "->" expr branch-rep
+
+pattern ::=
+    | value-name
+    | "_"
+    | constant
+    | "(" pattern ")"
+    | pattern pattern-tuple-rep
+    | "[" pattern pattern-list-rep "]"
+    | pattern "::" pattern
+
+pattern-tuple-rep ::= "," pattern | "," pattern pattern-tuple-rep
+
+pattern-list-rep ::= "" | ";" pattern pattern-list-rep
+
+let-binding ::= pattern "=" expr | value-name param-rep "=" expr
+
+param-rep ::= "" | pattern param-rep
