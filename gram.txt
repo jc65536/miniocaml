@@ -1,5 +1,5 @@
 expr ::=
-    | value-name
+    | value-name                                variables
     | constant                                  constants
     | "(" expr ")"                              grouping
     | expr { "," expr }+                        tuples
@@ -16,7 +16,7 @@ infix-op ::= "+" | "*" | "=" | "<" | "||" | "&&"
 
 constant ::= integer-literal | "false" | "true" | "()" | "[]"
 
-pattern-matching ::= pattern "->" expr { "|" pattern "->" expr }
+pattern-matching ::= { "|" pattern "->" expr }+
 
 pattern ::=
     | value-name
@@ -28,12 +28,12 @@ pattern ::=
     | "[" pattern { ";" pattern } "]"
     | pattern "::" pattern
 
-let-binding ::= pattern "=" expr | value-name { pattern } "=" expr
+let-binding ::= pattern "=" expr
 
 ---
 
 expr ::=
-    | value-name
+    | value-name                                variables
     | constant                                  constants
     | "(" expr ")"                              grouping
     | expr expr-tuple-rep                       tuples
@@ -58,9 +58,9 @@ infix-op ::= "+" | "*" | "=" | "<" | "||" | "&&"
 
 constant ::= integer-literal | "false" | "true" | "()" | "[]"
 
-pattern-matching ::= pattern "->" expr branch-rep
-
-branch-rep ::= "" | "|" pattern "->" expr branch-rep
+pattern-matching ::=
+    | "|" pattern "->" expr
+    | "|" pattern "->" expr pattern-matching
 
 pattern ::=
     | value-name
@@ -75,6 +75,4 @@ pattern-tuple-rep ::= "," pattern | "," pattern pattern-tuple-rep
 
 pattern-list-rep ::= "" | ";" pattern pattern-list-rep
 
-let-binding ::= pattern "=" expr | value-name param-rep "=" expr
-
-param-rep ::= "" | pattern param-rep
+let-binding ::= pattern "=" expr
