@@ -1,4 +1,5 @@
 expr ::=
+    | value-name
     | constant                                  constants
     | "(" expr ")"                              grouping
     | expr { "," expr }+                        tuples
@@ -32,21 +33,22 @@ let-binding ::= pattern "=" expr | value-name { pattern } "=" expr
 ---
 
 expr ::=
+    | value-name
     | constant                                  constants
     | "(" expr ")"                              grouping
-    | expr tuple-rep                            tuples
+    | expr expr-tuple-rep                       tuples
     | expr "::" expr                            list cons
-    | "[" expr list-rep "]"                     lists
-    | expr args-rep                             function application; note: potentially nicer if left recursive
+    | "[" expr expr-list-rep "]"                lists
+    | expr arg-rep                              function application
     | expr infix-op expr                        infix ops
     | "if" expr "then" expr "else" expr         if-else statements
     | "match" expr "with" pattern-matching      match statements
     | "fun" pattern "->" expr                   lambdas
     | "let" rec-opt let-binding "in" expr       let bindings
 
-expr-tuple-rep ::= "," expr | "," expr tuple-rep
+expr-tuple-rep ::= "," expr | "," expr expr-tuple-rep
 
-expr-list-rep ::= "" | ";" expr list-rep
+expr-list-rep ::= "" | ";" expr expr-list-rep
 
 arg-rep ::= expr | expr arg-rep
 
