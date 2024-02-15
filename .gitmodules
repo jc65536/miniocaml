@@ -1,0 +1,3 @@
+[submodule "ocaml_gram"]
+	path = ocaml_gram
+	url = git@github.com:mizlan/ocaml_gram.git
