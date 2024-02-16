@@ -1,3 +1,4 @@
 [submodule "ocaml_gram"]
 	path = ocaml_gram
 	url = git@github.com:jc65536/ocaml_gram.git
+	branch = main
