@@ -31,14 +31,13 @@ typeof(SymTable, tuple([E | Es]), tuple(T, Ts)) :-
     typeof(SymTable, E, T),
     typeof(SymTable, tuple(Es), Ts).
 
-typeof(_, list([]), list(_)).
+% TODO: write a base case for the type rule for list
 
 typeof(SymTable, list([E | Es]), list(T)) :-
     typeof(SymTable, E, T),
     typeof(SymTable, list(Es), list(T)).
 
-typeof(SymTable, cons(E1, E2), list(T)) :-
-    typeof(SymTable, E1, T), typeof(SymTable, E2, list(T)).
+% TODO: write a type rule for cons
 
 % Binary operations
 
@@ -47,30 +46,15 @@ typeof(SymTable, bop(E1, Op, E2), int) :-
     typeof(SymTable, E1, int),
     typeof(SymTable, E2, int).
 
-typeof(SymTable, bop(E1, Op, E2), bool) :-
-    (Op = "||"; Op = "&&"),
-    typeof(SymTable, E1, bool),
-    typeof(SymTable, E2, bool).
-
-typeof(SymTable, bop(E1, "=", E2), bool) :-
-    typeof(SymTable, E1, T),
-    typeof(SymTable, E2, T).
+% TODO: write type rules for ||, &&, and =
 
 % If statements
 
-typeof(SymTable, if(Econd, Eif, Eelse), T) :-
-    typeof(SymTable, Econd, bool),
-    typeof(SymTable, Eif, T),
-    typeof(SymTable, Eelse, T).
+% TODO
 
 % Function application
 
-typeof(SymTable, app(Efun, [Earg]), Tret) :-
-    typeof(SymTable, Efun, fun(Tparam, Tret)),
-    typeof(SymTable, Earg, Tparam).
-
-typeof(SymTable, app(Efun, [Earg | Eargs]), Tret) :-
-    typeof(SymTable, app(app(Efun, [Earg]), Eargs), Tret).
+% TODO
 
 % Variable names
 
@@ -79,28 +63,18 @@ typeof(SymTable, var(S), T) :-
 
 % Let bindings
 
-% Only variables are allowed as left-hand side of let rec
-typeof(SymTable, let(true, var(S), Ebound, Eout), Tout) :-
-    patbind(SymTable, var(S), Trec, NewSymTable),
-    typeof(NewSymTable, Ebound, Trec),
-    typeof(NewSymTable, Eout, Tout).
+% TODO: write type rules for recursive and normal let bindings
 
-typeof(SymTable, let(false, P, Ebound, Eout), Tout) :-
-    typeof(SymTable, Ebound, Tbound),
-    patbind(SymTable, P, Tbound, NewSymTable),
-    typeof(NewSymTable, Eout, Tout).
+% Only variables are allowed as left-hand side of let rec
 
 % Lambdas
 
-typeof(SymTable, fun(P, E), fun(Tparam, Tret)) :-
-    patbind(SymTable, P, Tparam, NewSymTable),
-    typeof(NewSymTable, E, Tret).
+% TODO
 
 % Match expressions
 
-typeof(SymTable, match(Escrut, Branches), Tret) :-
-    typeof(SymTable, Escrut, Tscrut),
-    type_branches(SymTable, Branches, Tscrut, Tret).
+% TODO: use the helper predicate type_branches to write a type rule for match
+% expressions
 
 type_branches(_, [], _, _).
 
@@ -118,28 +92,4 @@ patbind(SymTable, any, _, SymTable).
 
 % Pattern constants
 
-patbind(SymTable, int(_), int, SymTable).
-
-patbind(SymTable, bool(_), bool, SymTable).
-
-patbind(SymTable, tuple([]), unit, SymTable).
-
-patbind(SymTable, tuple([P | Ps]), tuple(T, Ts), NewSymTable) :-
-    patbind(SymTable, P, T, SymTable1),
-    patbind(SymTable1, tuple(Ps), Ts, NewSymTable).
-
-patbind(SymTable, list([]), list(_), SymTable).
-
-patbind(SymTable, list([P | Ps]), list(T), NewSymTable) :-
-    patbind(SymTable, P, T, SymTable1),
-    patbind(SymTable1, list(Ps), list(T), NewSymTable).
-
-patbind(SymTable, cons(P1, P2), list(T), NewSymTable) :-
-    patbind(SymTable, P1, T, SymTable1),
-    patbind(SymTable1, P2, list(T), NewSymTable).
-
-patbind(SymTable, or(P1, P2), T, NewSymTable) :-
-    patbind([], P1, T, SymTable1),
-    patbind([], P2, T, SymTable2),
-    st_eq(SymTable1, SymTable2),
-    append(SymTable, SymTable1, NewSymTable).
+% TODO
