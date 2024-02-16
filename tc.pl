@@ -1,18 +1,18 @@
 parse_tree(
-o_fun(o_cons(o_var(x), o_var(xs)),
-  o_fun(o_var(y),
-    o_let(false, o_wild, o_bop(o_var(x), "+", o_var(y)), o_var(xs))))
+o_let(false, o_or(o_list([o_var(a), o_int(4)]), o_cons(o_var(a), o_list([]))),
+  o_list([o_int(2), o_int(4)]), o_var(a))
 ).
 
 % Symbol table
 
 % Why prepend? (scope)
-sym_add(SymTable, Sym, Type, [entry(Sym, Type) | SymTable]).
+st_add(SymTable, Sym, Type, [entry(Sym, Type) | SymTable]).
 
-sym_get([entry(Sym, Type) | _], Sym, Type).
+st_get(SymTable, Sym, Type) :-
+    member(entry(Sym, Type), SymTable).
 
-sym_get([_ | Entries], Sym, Type) :-
-    sym_get(Entries, Sym, Type).
+st_eq(SymTable1, SymTable2) :-
+    subtract(SymTable1, SymTable2, []).
 
 % Type checking
 
@@ -75,7 +75,7 @@ typeof(SymTable, o_app(Efun, [Earg | Eargs]), Tret) :-
 % Variable names
 
 typeof(SymTable, o_var(S), T) :-
-    sym_get(SymTable, S, T).
+    st_get(SymTable, S, T).
 
 % Let bindings
 
@@ -112,7 +112,7 @@ type_branches(SymTable, [o_branch(P, Eret) | Branches], Tscrut, Tret) :-
 % Patterns
 
 patbind(SymTable, o_var(Sym), T, NewSymTable) :-
-    sym_add(SymTable, Sym, T, NewSymTable).
+    st_add(SymTable, Sym, T, NewSymTable).
 
 patbind(SymTable, o_wild, _, SymTable).
 
@@ -137,3 +137,9 @@ patbind(SymTable, o_list([P | Ps]), list(T), NewSymTable) :-
 patbind(SymTable, o_cons(P1, P2), list(T), NewSymTable) :-
     patbind(SymTable, P1, T, SymTable1),
     patbind(SymTable1, P2, list(T), NewSymTable).
+
+patbind(SymTable, o_or(P1, P2), T, NewSymTable) :-
+    patbind([], P1, T, SymTable1),
+    patbind([], P2, T, SymTable2),
+    st_eq(SymTable1, SymTable2),
+    append(SymTable, SymTable1, NewSymTable).
