@@ -1,6 +1,24 @@
+% Usage
+%
+% In shell:
+%
+%   gprolog --consult-file tc.pl
+%
+% In Prolog REPL:
+%
+%   parse_tree(E), typeof(E, T).
+%
+% E will be unified with the parse tree below, and T will be the output of the
+% typechecker.
+%
+
 parse_tree(
+% Paste parse tree below
+
 fun(cons(var(x), var(xs)),
   fun(var(y), let(false, any, bop(var(x), "+", var(y)), var(xs))))
+
+% Paste parse tree above
 ).
 
 % Symbol table
