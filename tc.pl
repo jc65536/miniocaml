@@ -26,8 +26,10 @@ fun(cons(var(x), var(xs)),
 % Why prepend? (scope)
 st_add(SymTable, Sym, Type, [entry(Sym, Type) | SymTable]).
 
-st_get(SymTable, Sym, Type) :-
-    member(entry(Sym, Type), SymTable).
+st_get([entry(Sym, Type) | _], Sym, Type).
+
+st_get([_ | Entries], Sym, Type) :-
+    st_get(Entries, Sym, Type).
 
 st_eq(SymTable1, SymTable2) :-
     subtract(SymTable1, SymTable2, []).
