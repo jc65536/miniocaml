@@ -1,0 +1,13 @@
+#!/bin/bash
+
+case $1 in
+    complete)
+        file=tc-complete.pl
+        ;;
+    *)
+        file=tc.pl
+        ;;
+esac
+
+gprolog --consult-file $file \
+        --query-goal "parse_tree(E), typeof(E, T)"
