@@ -1,31 +1,93 @@
+# Mini OCaml EBNF grammar
+
 expr ::=
-    | value-name                                variables
-    | constant                                  constants
-    | "(" expr ")"                              grouping
-    | expr { "," expr }+                        tuples
-    | expr "::" expr                            list cons
-    | "[" expr { ";" expr } "]"                 lists
-    | expr { expr }+                            function application
-    | expr infix-op expr                        infix ops
-    | "if" expr "then" expr "else" expr         if-else statements
-    | "match" expr "with" pattern-matching      match statements
-    | "fun" pattern "->" expr                   lambdas
-    | "let" [ "rec" ] let-binding "in" expr     let bindings
+    | value-name                                    variables
+    | constant
+    | "(" expr ")"
+    | expr { "," expr }+                            tuples
+    | expr "::" expr                                cons
+    | "[" expr { ";" expr } "]"                     lists
+    | expr { expr }+                                function application
+    | expr infix-op expr                            binary operations
+    | "if" expr "then" expr "else" expr             if expressions
+    | "match" expr "with" pattern-matching          match expressions
+    | "fun" pattern "->" expr                       lambdas
+    | "let" [ "rec" ] let-binding "in" expr         let bindings
 
-infix-op ::= "+" | "*" | "=" | "<" | "||" | "&&"
+infix-op ::= "+" | "*" | "=" | "<" | "||" | "&&"    binary operations
 
-constant ::= integer-literal | "false" | "true" | "()" | "[]"
+constant ::=
+    | integer-literal                               integer literals
+    | "false" | "true"                              boolean literals
+    | "()"                                          empty tuple (unit)
+    | "[]"                                          empty list
 
-pattern-matching ::= { "|" pattern "->" expr }+
+pattern-matching ::= { "|" pattern "->" expr }+     match branches
 
 pattern ::=
-    | value-name
-    | "_"
+    | value-name                                    variables
+    | "_"                                           wildcard
     | constant
     | "(" pattern ")"
-    | pattern "|" pattern
-    | pattern { "," pattern }+
-    | "[" pattern { ";" pattern } "]"
-    | pattern "::" pattern
+    | pattern "|" pattern                           or *
+    | pattern { "," pattern }+                      tuples
+    | "[" pattern { ";" pattern } "]"               lists
+    | pattern "::" pattern                          cons
 
 let-binding ::= pattern "=" expr
+
+
+* This pattern has some restrictions. Please see
+  https://v2.ocaml.org/manual/patterns.html#sss:pat-or
+
+---
+
+# Representation in AST (what ocaml_gram will give you)
+
+Expression              OCaml                   AST
+integer literals        1                       int(1)
+
+boolean literals        false                   bool(false)
+
+unit                    ()                      tuple([])
+
+empty list              []                      list([])
+
+variables               x                       var(x)
+
+tuples                  1, 2                    tuple([int(1), int(2)])
+
+cons                    1 :: []                 cons(int(1), list([]))
+
+lists                   [1; 2]                  list([int(1), int(2)])
+
+function application    f x y                   app(var(f), [var(x), var(y)])
+
+binary operations       1 + 2                   bop(int(1), "+", int(2))
+                        true || true            bop(bool(true), "||", bool(true))
+
+if expressions          if x then y else z      if(var(x), var(y), var(z))
+
+match expressions       match x with            match(var(x),
+                        | 1 -> a                      [branch(int(1), var(a)),
+                        | 2 -> b                       branch(int(2), var(b)),
+                        | 3 -> c                       branch(int(3), var(c))])
+
+lambdas                 fun x -> y              fun(var(x), var(y))
+
+let bindings            let x = 1 in 2          let(false, var(x), int(1), int(2))
+                        let rec x = 1 in 2      let(true, var(x), int(1), int(2))
+
+
+Pattern     OCaml               AST
+variables   fun x -> 1          fun(var(x), int(1))
+
+wildcard    fun _ -> 1          fun(any, int(1))
+
+or          fun (x | x) -> 1    fun(or(var(x), var(x)), int(1))
+
+tuples      fun (x, y) -> 1     fun(tuple([var(x), var(y)]), int(1))
+
+lists       fun [1; x] -> 1     fun(list([int(1), var(x)]), int(1))
+
+cons        fun 1 :: x -> 1     fun(cons(int(1), var(x)), int(1))
